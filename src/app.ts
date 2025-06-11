@@ -1,9 +1,11 @@
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
+import express, { Response, Request, NextFunction } from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
-const { config } = require("./config/app.config");
-const connectDatabase = require("./database/db");
+import { config } from "./config/app.config";
+import connectDatabase from "./database/db";
+import { asyncHandler } from "./middlewares/asyncHandler";
+import { HTTPSTATUS } from "./config/http.config";
 
 // Create Express application
 const app = express();
@@ -22,8 +24,24 @@ app.use(
   })
 );
 
+// Routes
+app.get(
+  "/",
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    res.status(HTTPSTATUS.OK).json({
+      message: "Welcome to the API!✨🍀",
+    });
+  })
+);
+
+app.use(`${config.BASE_PATH}/auth`)
+
+
+
 // Start server
 app.listen(config.PORT, async () => {
-    await connectDatabase();
-    console.log(`Server is running on port ${config.PORT} in ${config.NODE_ENV} mode`);
+  await connectDatabase();
+  console.log(
+    `Server is running on port ${config.PORT} in ${config.NODE_ENV} mode`
+  );
 });
