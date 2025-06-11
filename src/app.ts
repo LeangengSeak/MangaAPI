@@ -7,6 +7,8 @@ import connectDatabase from "./database/db";
 import { asyncHandler } from "./middlewares/asyncHandler";
 import { HTTPSTATUS } from "./config/http.config";
 
+import authRoutes from "./routes/auth.route";
+
 // Create Express application
 const app = express();
 
@@ -34,9 +36,7 @@ app.get(
   })
 );
 
-app.use(`${config.BASE_PATH}/auth`)
-
-
+app.use(`${config.BASE_PATH}/auth`, authRoutes);
 
 // Start server
 app.listen(config.PORT, async () => {
