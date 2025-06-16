@@ -17,7 +17,7 @@ export const threeMinutesAgo = (): Date => new Date(Date.now() - 3 * 60 * 1000);
 
 export const anHourFromNow = (): Date => new Date(Date.now() + 60 * 60 * 1000);
 
-export const caculateExpirationDate = (expiresIn: string = "15m"): Date => {
+export const calculateExpirationDate = (expiresIn: string = "15m"): Date => {
   // Match number + unit ( m = minutes, h = hours, d = days )
   const match = expiresIn.match(/^(\d+)([mhd])$/);
   if (!match) throw new Error('Invalid format. Use "15m", "1h", or "2d"');
