@@ -21,19 +21,19 @@ export interface UserDocument extends Document {
 }
 
 const userPreferencesSchema = new Schema<UserPreferences>({
-    enable2FA: {
-        type: Boolean,
-        default: false,
-    },
-    emailNotifications: {
-        type: Boolean,
-        default: true,
-    },
-    twoFactorSecret: {
-        type: String,
-        required: false,
-    },
-})
+  enable2FA: {
+    type: Boolean,
+    default: false,
+  },
+  emailNotifications: {
+    type: Boolean,
+    default: true,
+  },
+  twoFactorSecret: {
+    type: String,
+    required: false,
+  },
+});
 
 const userSchema = new Schema<UserDocument>(
   {
@@ -58,6 +58,7 @@ const userSchema = new Schema<UserDocument>(
       type: Boolean,
       default: false,
     },
+    userPreferences: { type: userPreferencesSchema, default: {} },
   },
   {
     timestamps: true,
@@ -74,26 +75,34 @@ const userSchema = new Schema<UserDocument>(
 );
 
 userSchema.pre("save", async function (next) {
-    if (this.isModified("password")) {
-        this.password = await hashValue(this.password)
-    }
-    next();
-})
+  if (this.isModified("password")) {
+    this.password = await hashValue(this.password);
+  }
+  next();
+});
 
 userSchema.methods.comparePassword = async function (value: string) {
-    return await compareValue(value, this.password)
-}
+  return await compareValue(value, this.password);
+};
 
 userSchema.set("toJSON", {
-    transform: (doc, ret) => {
-        delete ret.password; // Don't return password in the response
-        delete ret.__v; // Don't return version key
-        delete ret.userPrefernces.twoFactorSecret; // Don't return 2FA secret
-        // ret.id = ret._id; // Add id field
-    }
-    
-})
+  transform: (doc, ret) => {
+    delete ret.password; // Don't return password in the response
+    delete ret.__v; // Don't return version key
+    delete ret.userPreferences.twoFactorSecret; // Don't return 2FA secret
+    // ret.id = ret._id; // Add id field
+    return ret;
+  },
+});
 
-const UserModel = mongoose.model<UserDocument>("user", userSchema)
+// userSchema.set("toJSON", {
+//   transform: function (doc, ret) {
+//     delete ret.password;
+//     delete ret.userPreferences.twoFactorSecret;
+//     return ret;
+//   },
+// });
+
+const UserModel = mongoose.model<UserDocument>("user", userSchema);
 
 export default UserModel;
