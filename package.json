@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --files src/app.ts",
-    "build": "tsc && copy package.json dist\\package.json",
+    "build": "npm i && tsc && cp package.json dist/package.json",
     "start": "node dist/app.js"
   },
   "keywords": [],
