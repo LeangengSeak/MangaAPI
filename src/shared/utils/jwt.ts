@@ -16,9 +16,6 @@ type SignOptsAndSecret = SignOptions & {
   secret: string;
 };
 
-const defaults: SignOptions = {
-  audience: ["user"],
-};
 
 export const accessTokenSignOptions: SignOptsAndSecret = {
   expiresIn: config.JWT
@@ -37,10 +34,7 @@ export const signJwtToken = (
   options?: SignOptsAndSecret
 ) => {
   const { secret, ...opts } = options || accessTokenSignOptions;
-  return jwt.sign(payload, secret, {
-    ...defaults,
-    ...opts,
-  });
+  return jwt.sign(payload, secret, opts);
 };
 
 export const verifyJwtToken = <TPayload extends object = AccessTPayload>(
@@ -49,10 +43,7 @@ export const verifyJwtToken = <TPayload extends object = AccessTPayload>(
 ) => {
   try {
     const { secret = config.JWT.SECRET, ...opts } = options || {};
-    const payload = jwt.verify(token, secret, {
-      ...defaults,
-      ...opts,
-    }) as TPayload;
+    const payload = jwt.verify(token, secret, opts) as TPayload;
     return { payload };
   } catch (err: any) {
     return {
