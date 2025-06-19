@@ -1,5 +1,5 @@
 import { config } from "../config/app.config";
-import { resend } from "./resendClient";
+import { transporter } from "./resendClient";
 
 type Params = {
   to: string | string[];
@@ -21,10 +21,18 @@ export const sendEmail = async ({
   text,
   html,
 }: Params) =>
-  await resend.emails.send({
+{
+ try {
+  const info = await transporter.sendMail({
     from,
     to: Array.isArray(to) ? to : [to],
-    text,
     subject,
-    html,
-  });
+    text,
+    html
+  })
+  return info;
+ } catch (error) {
+  console.error("Error sending email:", error);
+  throw new Error("Failed to send email");
+ }
+}

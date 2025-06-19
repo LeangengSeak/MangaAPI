@@ -1,4 +1,10 @@
-import {config} from '../config/app.config'
-import { Resend } from 'resend'
+import { createTransport } from 'nodemailer'
+import { config } from '../config/app.config'
 
-export const resend = new Resend(config.RESEND_API_KEY)
+export const transporter = createTransport({
+  service: 'gmail',
+  auth:{
+    user: config.SENDING_EMAIL_ADDRESS,
+    pass: config.SENDING_EMAIL_PASSWORD
+  }
+})
