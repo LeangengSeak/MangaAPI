@@ -46,3 +46,13 @@ export class HttpException extends AppError {
     super(message, statusCode, errorCode);
   }
 }
+
+export class ForbiddenException extends AppError {
+  constructor(message = "Forbidden", errorCode?: ErrorCode) {
+    super(
+      message,
+      HTTPSTATUS.FORBIDDEN,
+      errorCode || ErrorCode.ACCESS_FORBIDDEN
+    );
+  }
+}
