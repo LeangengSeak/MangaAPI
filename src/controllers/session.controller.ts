@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler";
 import { SessionService } from "../services/session.service";
 import { HTTPSTATUS } from "../config/http.config";
-import { NotFoundExpection } from "../shared/utils/catch-errors";
-import { boolean, z } from "zod";
+import { NotFoundExpection, UnauthorizedException } from "../shared/utils/catch-errors";
+import { z } from "zod";
 
 export class SessionController {
   constructor(private sessionService: SessionService) {
@@ -14,8 +14,6 @@ export class SessionController {
     async (req: Request, res: Response): Promise<any> => {
       const userId = req.user?.id;
       const sessionId = req.sessionId;
-      console.log("userId", req.user, "sessionId", sessionId);
-      console.log('userid  dddd', userId);
 
       const { sessions } = await this.sessionService.getAllSessions(userId);
 
@@ -55,7 +53,8 @@ export class SessionController {
     async (req: Request, res: Response): Promise<any> => {
       const sessionId = z.string().parse(req.params.sessionId);
       const userId = req.user?.id;
-      console.log(userId, sessionId);
+
+      if (!req.user) throw new UnauthorizedException("User not found");
 
       await this.sessionService.deleteSession(sessionId, userId);
 
