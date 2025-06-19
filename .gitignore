@@ -12,3 +12,6 @@ yarn-error.log
 #ignore build or any compiled files
 build/
 dist/
+
+#ignore coverage reports
+logs/
