@@ -37,6 +37,33 @@ import {
 import { logger } from "../shared/utils/logger";
 
 export class AuthService {
+  private async sendEmailVerification(userId: string, email: string) {
+    const verification = await verificationCodeModel.create({
+      userId,
+      type: VerificationEum.EMAIL_VERIFICATION,
+      expiresAt: fortyFiveMinutesFromNow(),
+    });
+    const verificationUrl = `${config.APP_ORIGIN}/confirm-account?code=${verification.code}`;
+
+    try {
+      const result = await sendEmail({
+        to: email,
+        ...verifyEmailTemplate(verificationUrl),
+      });
+
+      if (!result.messageId) {
+        throw new InternalServerExecption(
+          `Failed to send verification email to ${email}`
+        );
+      }
+
+      logger.info(`Verification email sent to ${email}`);
+    } catch (error) {
+      logger.error("Error sending verification email:", error);
+      throw new InternalServerExecption("Could not send verification email.");
+    }
+  }
+
   public async register(registerData: RegisterDto) {
     const { firstName, lastName, email, password } = registerData;
 
@@ -56,21 +83,8 @@ export class AuthService {
       password,
     });
 
-    const userId = newUser._id;
+    await this.sendEmailVerification(newUser.id, newUser.email);
 
-    const verification = await verificationCodeModel.create({
-      userId,
-      type: VerificationEum.EMAIL_VERIFICATION,
-      expiresAt: fortyFiveMinutesFromNow(),
-    });
-
-    // Sending verification email link
-    const verificationUrl = `${config.APP_ORIGIN}/confirm-account?code=${verification.code}`;
-    await sendEmail({
-      to: newUser.email,
-      ...verifyEmailTemplate(verificationUrl),
-    });
-    console.log("user : ", newUser);
     return { user: newUser };
   }
 
@@ -93,6 +107,15 @@ export class AuthService {
       throw new BadRequestException(
         "Invalid email or password provided",
         ErrorCode.AUTH_NOT_FOUND
+      );
+    }
+
+    if (!user.isEmailVerified) {
+      logger.warn(`Login failed for user ${email}: Email not verified`);
+      await this.sendEmailVerification(user.id, user.email);
+      throw new BadRequestException(
+        "Email is not verified",
+        ErrorCode.AUTH_EMAIL_NOT_VERIFIED
       );
     }
 
@@ -232,18 +255,18 @@ export class AuthService {
 
     const resetLink = `${config.APP_ORIGIN}/reset-password?code=${validCode.code}&exp=${expiresAt.getTime()}`;
 
-    const { data, error } = await sendEmail({
+    const result = await sendEmail({
       to: user.email,
       ...passwordResetTemplate(resetLink),
     });
 
-    if (!data?.id)
-      throw new InternalServerExecption(`${error?.name} ${error?.message}`);
+    if (!result.messageId)
+      throw new InternalServerExecption(`Failed to send email`);
 
     return {
       url: resetLink,
       message: "Password reset email sent successfully",
-      emailId: data.id,
+      emailId: result.messageId,
     };
   }
 
