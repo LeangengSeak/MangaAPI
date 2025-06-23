@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler";
 import { AuthService } from "../services/auth.service";
 import { HTTPSTATUS } from "../config/http.config";
+import { UserService } from "../services/user.service";
 
 import {
   emailSchema,
@@ -17,8 +18,9 @@ import {
 } from "../shared/utils/catch-errors";
 
 export class AuthController {
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private userService: UserService) {
     this.authService = authService;
+    this.userService = userService;
   }
 
   public register = asyncHandler(
@@ -61,7 +63,7 @@ export class AuthController {
         mfaRequired,
         data: {
           user,
-          tokens: {accessToken, refreshToken}
+          tokens: { accessToken, refreshToken },
         },
       });
     }
@@ -138,6 +140,21 @@ export class AuthController {
       return res.status(HTTPSTATUS.OK).json({
         message: "User logout successfully",
         hint: "clearTokens",
+      });
+    }
+  );
+
+  public getMe = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const userId = req.user?.id;
+
+      if (!userId) throw new NotFoundExpection("User not found");
+      
+      const user = await this.userService.getUserById(userId);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "User retrieved successfully",
+        data: user,
       });
     }
   );
