@@ -26,6 +26,7 @@ import {
   calculateExpirationDate,
   fortyFiveMinutesFromNow,
   ONE_DAY_IN_MS,
+  oneMinuteAgo,
   threeMinutesAgo,
 } from "../shared/utils/date-time";
 import {
@@ -38,6 +39,21 @@ import { logger } from "../shared/utils/logger";
 
 export class AuthService {
   private async sendEmailVerification(userId: string, email: string) {
+    const timeAgo = oneMinuteAgo();
+    const maxAttempts = 1;
+
+    const count = await verificationCodeModel.countDocuments({
+      userId,
+      type: VerificationEum.EMAIL_VERIFICATION,
+      createdAt: { $gt: timeAgo },
+    });
+
+    if (count >= maxAttempts)
+      throw new BadRequestException(
+        "Too many requests, please try again later in 1 minute",
+        ErrorCode.AUTH_TOO_MANY_ATTEMPS
+      );
+
     const verification = await verificationCodeModel.create({
       userId,
       type: VerificationEum.EMAIL_VERIFICATION,
@@ -111,8 +127,6 @@ export class AuthService {
     }
 
     if (!user.isEmailVerified) {
-      logger.warn(`Login failed for user ${email}: Email not verified`);
-      await this.sendEmailVerification(user.id, user.email);
       throw new BadRequestException(
         "Email is not verified",
         ErrorCode.AUTH_EMAIL_NOT_VERIFIED
@@ -224,6 +238,21 @@ export class AuthService {
       message: "Email verified successfully",
       data: { updatedUser },
     };
+  }
+
+  public async resendVerification(email: string) {
+    const user = await UserModel.findOne({ email });
+
+    if (!user) throw new BadRequestException("user not found");
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException(
+        "Email is already verified",
+        ErrorCode.AUTH_EMAIL_VERIFIED
+      );
+    }
+
+    await this.sendEmailVerification(user.id, user.email);
   }
 
   public async forgotPassword(email: string) {

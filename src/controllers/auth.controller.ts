@@ -18,7 +18,10 @@ import {
 } from "../shared/utils/catch-errors";
 
 export class AuthController {
-  constructor(private authService: AuthService, private userService: UserService) {
+  constructor(
+    private authService: AuthService,
+    private userService: UserService
+  ) {
     this.authService = authService;
     this.userService = userService;
   }
@@ -101,6 +104,19 @@ export class AuthController {
       return res.status(HTTPSTATUS.OK).json({
         message: "Email verified successfully",
       });
+    }
+  );
+
+  public resendVerification = asyncHandler(
+    async (req: Request, res: Response): Promise<any> => {
+      const email = emailSchema.parse(req.body.email);
+      
+      await this.authService.resendVerification(email)
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Verification email sent successfully",
+      });
+      
     }
   );
 

@@ -13,6 +13,7 @@ const authRoutes = Router();
 authRoutes.post("/register", authController.register);
 authRoutes.post("/login", authController.login);
 authRoutes.post("/verify/email", authController.verifyEmail);
+authRoutes.post("/resend-verification", authController.resendVerification);
 authRoutes.post("/password/forgot", authController.forgotPassword);
 authRoutes.post("/password/reset", authController.resetPassword);
 authRoutes.post("/logout", authenticateJWT, authController.logout);
