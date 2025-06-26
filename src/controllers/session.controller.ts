@@ -23,7 +23,7 @@ export class SessionController {
         ...session.toObject(),
           ...(session.id === sessionId && { isCurrent: true })
       }));
-      console.log(sessions.length)
+
       return res.status(HTTPSTATUS.OK).json({
         message: "All sessions fetched successfully",
         sessions: modifySessions,
