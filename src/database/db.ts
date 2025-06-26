@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { config } = require("../config/app.config");
+import mongoose from "mongoose";
+import {config} from "../config/app.config";
 
 const connectDatabase = async () => {
   try {
