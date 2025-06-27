@@ -10,6 +10,7 @@ import {
 import { uploadToCloudinary } from "../shared/utils/cloudinary";
 import { HTTPSTATUS } from "../config/http.config";
 import { z } from "zod";
+import { extractAndValidateFile } from "../shared/utils/fileValidation";
 
 export class AdminController {
   constructor(private adminService: AdminService) {
@@ -22,7 +23,13 @@ export class AdminController {
         throw new BadRequestException("Image file is required");
 
       const body = ContentSchema.parse({ ...req.body });
-      const imageFile = req.files.imageFile;
+
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      const imageFile = extractAndValidateFile(
+        "imageFile",
+        req.files,
+        allowedTypes
+      );
 
       const imageUrl = await uploadToCloudinary(imageFile);
 
@@ -40,10 +47,11 @@ export class AdminController {
       const contentId = z.string().parse(req.params.id);
       if (!contentId) throw new BadRequestException("Content ID is required");
 
-      await this.adminService.deleteContent(contentId);
+      const { deleted } = await this.adminService.deleteContent(contentId);
 
       return res.status(HTTPSTATUS.OK).json({
         message: "Content deleted successfully",
+        deleted,
       });
     }
   );
@@ -54,7 +62,13 @@ export class AdminController {
         throw new BadRequestException("Image file is required");
 
       const body = EpisodeSchema.parse({ ...req.body });
-      const imageFile = req.files.imageFile;
+
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      const imageFile = extractAndValidateFile(
+        "imageFile",
+        req.files,
+        allowedTypes
+      );
 
       const imageUrl = await uploadToCloudinary(imageFile);
 
@@ -68,47 +82,55 @@ export class AdminController {
   );
 
   public deleteEpisode = asyncHandler(
-      async (req: Request, res: Response): Promise<any> => {
-          const episodeId = z.string().parse(req.params.id);
-          if (!episodeId) throw new BadRequestException("Episode ID is required");
-          
-          await this.adminService.deleteEpisode(episodeId);
-          
-            return res.status(HTTPSTATUS.OK).json({
-                message: "Episode deleted successfully",
-            });
+    async (req: Request, res: Response): Promise<any> => {
+      const episodeId = z.string().parse(req.params.id);
+      if (!episodeId) throw new BadRequestException("Episode ID is required");
+
+      const { deleted } = await this.adminService.deleteEpisode(episodeId);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Episode deleted successfully",
+        deleted,
+      });
     }
   );
 
   public createManga = asyncHandler(
-      async (req: Request, res: Response): Promise<any> => {
-        if (!req.files || !req.files.imageFile)
-          throw new BadRequestException("Image file is required");
+    async (req: Request, res: Response): Promise<any> => {
+      if (!req.files || !req.files.imageFile)
+        throw new BadRequestException("Image file is required");
 
-        const body = MangaSchema.parse({ ...req.body }); 
-        const imageFile = req.files.imageFile;
+      const body = MangaSchema.parse({ ...req.body });
 
-        const imageUrl = await uploadToCloudinary(imageFile);
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      const imageFile = extractAndValidateFile(
+        "imageFile",
+        req.files,
+        allowedTypes
+      );
 
-        const { manga } = await this.adminService.createManga(body, imageUrl);
+      const imageUrl = await uploadToCloudinary(imageFile);
 
-        return res.status(HTTPSTATUS.CREATED).json({
-          message: "Manga created successfully",
-          data: manga,
-        });
+      const { manga } = await this.adminService.createManga(body, imageUrl);
+
+      return res.status(HTTPSTATUS.CREATED).json({
+        message: "Manga created successfully",
+        data: manga,
+      });
     }
   );
 
   public deleteManga = asyncHandler(
-      async (req: Request, res: Response): Promise<any> => {
-          const mangaId = z.string().parse(req.params.id);
-          if (!mangaId) throw new BadRequestException("Manga ID is required");
+    async (req: Request, res: Response): Promise<any> => {
+      const mangaId = z.string().parse(req.params.id);
+      if (!mangaId) throw new BadRequestException("Manga ID is required");
 
-          await this.adminService.deleteManga(mangaId);
-          
-            return res.status(HTTPSTATUS.OK).json({
-                message: "Manga deleted successfully",
-            });
+      const { deleted } = await this.adminService.deleteManga(mangaId);
+
+      return res.status(HTTPSTATUS.OK).json({
+        message: "Manga deleted successfully",
+        deleted,
+      });
     }
   );
 }
