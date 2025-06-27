@@ -19,6 +19,7 @@ import mangaRoutes from "./routes/manga.route";
 import episodeRoutes from "./routes/episode.route";
 import favoriteRoutes from "./routes/favorite.route";
 import statRoutes from "./routes/stat.route";
+import userRoutes from "./routes/user.route";
 
 // Create Express application
 const app = express();
@@ -59,6 +60,7 @@ app.get(
 );
 
 app.use(`${BASE_PATH}/auth`, authRoutes);
+app.use(`${BASE_PATH}/profile`, authenticateJWT, userRoutes)
 app.use(`${BASE_PATH}/session`, authenticateJWT, sessionRoutes);
 app.use(`${BASE_PATH}/favorite`, authenticateJWT, favoriteRoutes)
 app.use(`${BASE_PATH}/admin`, authenticateJWT, adminRoutes);
