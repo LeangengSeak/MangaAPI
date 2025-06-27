@@ -1,7 +1,7 @@
 import { HTTPSTATUS, HttpStatusCode } from "../../config/http.config";
 import { ErrorCode } from "../enums/error-code.enum";
 import { AppError } from "./app-error";
-export class NotFoundExpection extends AppError {
+export class NotFoundException extends AppError {
   constructor(message = "Resource not found", errorCode?: ErrorCode) {
     super(
       message,
