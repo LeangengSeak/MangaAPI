@@ -18,7 +18,7 @@ import { hashValue } from "../shared/utils/bcrypt";
 import {
   BadRequestException,
   InternalServerExecption,
-  NotFoundExpection,
+  NotFoundException,
   UnauthorizedException,
 } from "../shared/utils/catch-errors";
 import {
@@ -307,7 +307,7 @@ export class AuthService {
     });
 
     if (!validCode)
-      throw new NotFoundExpection("Invalid or expired verification code");
+      throw new NotFoundException("Invalid or expired verification code");
 
     const hashedPassword = await hashValue(password);
 

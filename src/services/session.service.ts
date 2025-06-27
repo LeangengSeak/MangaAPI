@@ -1,5 +1,5 @@
 import SessionModel from "../models/session.model";
-import { NotFoundExpection } from "../shared/utils/catch-errors";
+import { NotFoundException } from "../shared/utils/catch-errors";
 
 export class SessionService {
   public getAllSessions = async (userId: string) => {
@@ -26,7 +26,7 @@ export class SessionService {
       .populate("userId")
       .select("-expiredAt");
 
-    if (!session) throw new NotFoundExpection("Session not found.");
+    if (!session) throw new NotFoundException("Session not found.");
 
     const { userId: user } = session;
 
@@ -38,7 +38,7 @@ export class SessionService {
       userId: userId,
     });
     if (!deletedSession)
-      throw new NotFoundExpection("Session not found or already deleted.");
+      throw new NotFoundException("Session not found or already deleted.");
 
     return;
   };

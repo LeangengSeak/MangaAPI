@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler";
 import { SessionService } from "../services/session.service";
 import { HTTPSTATUS } from "../config/http.config";
-import { NotFoundExpection, UnauthorizedException } from "../shared/utils/catch-errors";
+import { NotFoundException, UnauthorizedException } from "../shared/utils/catch-errors";
 import { z } from "zod";
 
 export class SessionController {
@@ -17,7 +17,7 @@ export class SessionController {
 
       const { sessions } = await this.sessionService.getAllSessions(userId);
 
-      if(sessions.length === 0) throw new NotFoundExpection("No sessions found for this user.");
+      if(sessions.length === 0) throw new NotFoundException("No sessions found for this user.");
 
       const modifySessions = sessions.map((session) => ({
         ...session.toObject(),
@@ -36,7 +36,7 @@ export class SessionController {
       const sessionId = req?.sessionId;
 
       if (!sessionId)
-        throw new NotFoundExpection(
+        throw new NotFoundException(
           "Session ID not found. Please login again."
         );
 

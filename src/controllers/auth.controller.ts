@@ -13,7 +13,7 @@ import {
 } from "../shared/validators/auth.validator";
 
 import {
-  NotFoundExpection,
+  NotFoundException,
   UnauthorizedException,
 } from "../shared/utils/catch-errors";
 
@@ -149,7 +149,7 @@ export class AuthController {
     async (req: Request, res: Response): Promise<any> => {
       const sessionId = req.sessionId;
 
-      if (!sessionId) throw new NotFoundExpection("Session is invalid.");
+      if (!sessionId) throw new NotFoundException("Session is invalid.");
 
       await this.authService.logout(sessionId);
 
@@ -164,7 +164,7 @@ export class AuthController {
     async (req: Request, res: Response): Promise<any> => {
       const userId = req.user?.id;
 
-      if (!userId) throw new NotFoundExpection("User not found");
+      if (!userId) throw new NotFoundException("User not found");
       
       const user = await this.userService.getUserById(userId);
 
