@@ -81,7 +81,7 @@ export class UserController {
 
       const userId = req.user.id;
       const updatePassword = updatePasswordSchema.parse(req.body);
-      const updatedUser = await this.userService.updatePassword(
+      await this.userService.updatePassword(
         userId,
         updatePassword
       );
@@ -91,4 +91,17 @@ export class UserController {
       });
     }
   );
+
+  public deleteAccount = asyncHandler(async (req: Request, res: Response): Promise<any> => {
+    if (!req.user) throw new BadRequestException('User not authenticated')
+    
+    const userId = req.user.id;
+    const { deleted } = await this.userService.deleteAcount(userId)
+
+    return res.status(HTTPSTATUS.OK).json({
+      deleted,
+      message: "Account deleted successfully"
+    })
+    
+  })
 }

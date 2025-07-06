@@ -63,4 +63,14 @@ export class UserService {
 
     return;
   }
+
+  public async deleteAcount(userId: string) {
+
+    const deleteUser = await UserModel.findByIdAndDelete(userId)
+
+    if (!deleteUser) throw new BadRequestException("User not found or already deleted.")
+    
+    return { deleted: true }
+    
+  }
 }
