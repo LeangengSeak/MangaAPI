@@ -52,16 +52,22 @@ export const authenticateJWT: PassportAuthCallback = (req, res, next) => {
   passport.authenticate(
     "jwt",
     { session: false },
-    (err: Error | null, user: Express.User | null | false, info: unknown) => {
-      if (err || !user) {
-        throw new UnauthorizedException(
-          "Unauthorized access token",
-          ErrorCode.AUTH_TOKEN_NOT_FOUND
+    (err: Error | null, user: Express.User | null | false, info: any) => {
+    
+      if (err) {
+        return next(err); 
+      }
+
+      if (!user) {
+        return next(
+          new UnauthorizedException(
+            "Invalid or missing access token",
+            ErrorCode.AUTH_TOKEN_NOT_FOUND
+          )
         );
       }
-      
-      req.user = user;
 
+      req.user = user;
       next();
     }
   )(req, res, next);
