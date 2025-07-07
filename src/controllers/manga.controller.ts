@@ -13,8 +13,6 @@ export class MangaController{
 
         const query = req.query
 
-        console.log("Query parameters:", query);
-
         const { mangas } = await this.mangaService.getAllMangas(query);
 
         return res.status(HTTPSTATUS.OK).json({

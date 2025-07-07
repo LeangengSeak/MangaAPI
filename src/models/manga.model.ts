@@ -6,8 +6,8 @@ export interface MangaDocument extends Document {
   coverImageUrl: string;
   description: string;
   views: number;
-  episodes: { episodeId: mongoose.Schema.Types.ObjectId }[];
-  viewedBy: { userId: mongoose.Schema.Types.ObjectId }[];
+  episodes: mongoose.Types.ObjectId[];
+  viewedBy: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
