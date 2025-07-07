@@ -1,3 +1,4 @@
+import SessionModel from "../models/session.model";
 import UserModel from "../models/user.model";
 import {
   UpdateData,
@@ -8,6 +9,11 @@ import { BadRequestException } from "../shared/utils/catch-errors";
 export class UserService {
   public async getUserById(userId: string) {
     const user = await UserModel.findById(userId);
+
+    if (!user) {
+      throw new BadRequestException("User not found");
+    }
+
     return user || null;
   }
 
@@ -69,6 +75,8 @@ export class UserService {
     const deleteUser = await UserModel.findByIdAndDelete(userId)
 
     if (!deleteUser) throw new BadRequestException("User not found or already deleted.")
+    
+    await SessionModel.deleteMany({ userId });
     
     return { deleted: true }
     
